@@ -121,12 +121,16 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div ref={mainRef}>
+    <div ref={mainRef} style={{ position: "relative", minHeight: "100vh" }}>
+      {/* ─── FULL HOME PAGE PERSISTENT CINEMATIC VIDEO BACKGROUND ────────── */}
+      <HeroCinematicBackground isFullPage={true} />
+
       {/* ─── HERO SECTION ─────────────────────────────────────────────────── */}
       <section
         ref={heroRef}
         style={{
           position: "relative",
+          zIndex: 1,
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
@@ -137,9 +141,6 @@ export default function HomePage() {
           paddingBottom: "3rem",
         }}
       >
-        {/* Cinematic Live Stage Background with Video-like Motion Graphics & Real Images */}
-        <HeroCinematicBackground />
-
         {/* 3D WebGL Canvas Layer (Ambient Stage Beams & Particles) */}
         <Suspense fallback={null}>
           <HeroCanvas scrollProgress={scrollProgressRef} />

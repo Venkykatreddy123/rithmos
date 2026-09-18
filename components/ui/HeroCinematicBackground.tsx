@@ -47,10 +47,16 @@ const VIDEO_FEEDS: VideoFeed[] = [
   },
 ];
 
-export default function HeroCinematicBackground() {
+export default function HeroCinematicBackground({
+  isFullPage = true,
+}: {
+  isFullPage?: boolean;
+}) {
   const [activeFeed, setActiveFeed] = useState<number>(0);
   const [viewMode, setViewMode] = useState<"merged" | "solo">("merged");
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [inHero, setInHero] = useState<boolean>(true);
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [timecode, setTimecode] = useState("00:04:18:14");
   const [dbLevel, setDbLevel] = useState("-3.2 dB");
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -64,6 +70,18 @@ export default function HeroCinematicBackground() {
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Scroll tracking to adapt lighting, contrast & HUD visibility across the whole page
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY;
+      const totalH = document.documentElement.scrollHeight - window.innerHeight;
+      setInHero(y < 550);
+      setScrollProgress(totalH > 0 ? y / totalH : 0);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Autoplay and keep videos synchronized
@@ -123,13 +141,7 @@ export default function HeroCinematicBackground() {
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
-  // ─── PREMIUM PURE BACKGROUND MOTION CANVAS ENGINE ─────────────────────────
-  // Includes:
-  // 1. Interactive Follow-Spotlight (Cursor Focus)
-  // 2. 120 BPM Subwoofer Bass Kick & Steadicam Orbital Float
-  // 3. Anamorphic Horizontal Stage Flare Sweeps
-  // 4. Fluid Ember Particle Turbulence (Swirl on Mouse Move)
-  // 5. Audio-Reactive Waveforms & Dynamic 52-Band Spectrum Analyzer
+  // ─── FULL-PAGE PERSISTENT BACKGROUND MOTION CANVAS ENGINE ──────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -196,20 +208,17 @@ export default function HeroCinematicBackground() {
     const render = (timeMs: number) => {
       const timeSec = timeMs * 0.001;
 
-      // Smooth mouse interpolation
       mouseRef.current.x +=
         (mouseRef.current.targetX - mouseRef.current.x) * 0.06;
       mouseRef.current.y +=
         (mouseRef.current.targetY - mouseRef.current.y) * 0.06;
 
       // ─── 1. STEADICAM JIB FLOAT + 120 BPM SUBWOOFER BASS KICK ───
-      // Subwoofer kick pulse every ~0.5s (120 BPM heartbeat rhythm)
       const beat = Math.sin(timeSec * Math.PI * 2);
       const subKick = beat > 0.82 ? Math.pow(beat, 6) * 0.016 : 0;
       const liveAudioBoost = audioData.isPlaying ? audioData.rms * 0.035 : 0;
       const totalKickScale = 1.0 + subKick + liveAudioBoost;
 
-      // Smooth orbital camera drift
       const jibX = Math.sin(timeSec * 0.32) * 9;
       const jibY = Math.cos(timeSec * 0.26) * 7;
       const parallaxX = mouseRef.current.x * -16;
@@ -225,7 +234,6 @@ export default function HeroCinematicBackground() {
       phase += audioData.isPlaying ? 0.048 + audioData.rms * 0.06 : 0.024;
 
       // ─── 2. INTERACTIVE STAGE FOLLOW-SPOTLIGHT (CURSOR FOCUS) ───
-      // Smoothly illuminates the instruments under the cursor with specular luster
       if (mouseRef.current.rawX > 0 && mouseRef.current.rawY > 0) {
         const spotX = mouseRef.current.rawX;
         const spotY = mouseRef.current.rawY;
@@ -245,13 +253,11 @@ export default function HeroCinematicBackground() {
       }
 
       // ─── 3. ANAMORPHIC HORIZONTAL STAGE FLARE SWEEPS ───
-      // A luminous Panavision concert lens flare gliding vertically
       const flareCycle = (timeSec * 0.28) % (Math.PI * 2);
       const flareY = height * 0.42 + Math.sin(flareCycle) * (height * 0.22);
       const flareIntensity = Math.pow(Math.sin(flareCycle), 4) * 0.42;
 
       if (flareIntensity > 0.04) {
-        // Horizontal razor flare streak
         const streakGrad = ctx.createLinearGradient(0, flareY, width, flareY);
         streakGrad.addColorStop(0, "transparent");
         streakGrad.addColorStop(0.3, `rgba(230, 20, 56, ${flareIntensity * 0.5})`);
@@ -262,7 +268,6 @@ export default function HeroCinematicBackground() {
         ctx.fillStyle = streakGrad;
         ctx.fillRect(0, flareY - 1.5, width, 3);
 
-        // Central lens halo
         const haloGrad = ctx.createRadialGradient(
           width * 0.5,
           flareY,
@@ -332,7 +337,6 @@ export default function HeroCinematicBackground() {
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, barWidth, barH);
 
-        // Peak cap dot
         ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
         ctx.fillRect(x, y - 3, barWidth, 2);
       }
@@ -396,12 +400,11 @@ export default function HeroCinematicBackground() {
         ctx.setLineDash([]);
       }
 
-      // ─── 8. FLUID EMBER PARTICLE TURBULENCE (REACTIVE TO CURSOR VELOCITY) ───
+      // ─── 8. FLUID EMBER PARTICLE TURBULENCE (MOUSE REACTION) ───
       const curMouseX = mouseRef.current.rawX;
       const curMouseY = mouseRef.current.rawY;
 
       sparks.forEach((p) => {
-        // Compute fluid air turbulence from cursor
         if (curMouseX > 0 && curMouseY > 0) {
           const dx = p.x - curMouseX;
           const dy = p.y - curMouseY;
@@ -413,7 +416,6 @@ export default function HeroCinematicBackground() {
           }
         }
 
-        // Fluid friction & upward recovery
         p.vx *= 0.95;
         p.vy = p.vy * 0.96 + p.baseVy * 0.04;
 
@@ -441,15 +443,27 @@ export default function HeroCinematicBackground() {
     };
   }, []);
 
+  // Adaptive background opacity based on scroll:
+  // - Hero: High contrast, vivid concert video
+  // - Body sections: Soft translucent passthrough (so all text & cards are 100% readable)
+  // - Final CTA: Intensified stage climax
+  const isFinalCTA = scrollProgress > 0.86;
+  const overlayBackground = inHero
+    ? "radial-gradient(ellipse at 50% 48%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(8, 9, 12, 0.65) 100%)"
+    : isFinalCTA
+    ? "radial-gradient(ellipse at 50% 50%, rgba(230, 20, 56, 0.18) 0%, rgba(255, 255, 255, 0.5) 45%, rgba(8, 9, 12, 0.85) 100%)"
+    : "rgba(255, 255, 255, 0.76)";
+
   return (
     <div
       style={{
-        position: "absolute",
+        position: isFullPage ? "fixed" : "absolute",
         inset: 0,
         zIndex: 0,
         overflow: "hidden",
         pointerEvents: "none",
         background: "#08090C",
+        transition: "background 0.5s ease",
       }}
     >
       {/* ─── LAYER 1: VIDEO COMPOSITOR WITH STEADICAM JIB + 120 BPM KICK ─── */}
@@ -546,7 +560,7 @@ export default function HeroCinematicBackground() {
                       />
                     )}
 
-                    {/* Camera Badge Pill */}
+                    {/* Camera Badge Pill (visible in Hero) */}
                     <div
                       style={{
                         position: "absolute",
@@ -566,6 +580,8 @@ export default function HeroCinematicBackground() {
                         fontSize: "0.64rem",
                         color: "#FFFFFF",
                         letterSpacing: "0.06em",
+                        opacity: inHero ? 1 : 0,
+                        transition: "opacity 0.4s ease",
                       }}
                     >
                       <span
@@ -758,23 +774,23 @@ export default function HeroCinematicBackground() {
         }}
       />
 
-      {/* ─── LAYER 5: CRYSTAL CLEAR READABILITY VIGNETTE ─── */}
+      {/* ─── LAYER 5: ADAPTIVE READABILITY & CONTRAST OVERLAY (SCROLL-DRIVEN) ─── */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 5,
-          background:
-            "radial-gradient(ellipse at 50% 48%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(8, 9, 12, 0.65) 100%)",
+          background: overlayBackground,
+          transition: "background 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
           pointerEvents: "none",
         }}
       />
 
-      {/* ─── LAYER 6: TELEMETRY HUD DOCK ─── */}
+      {/* ─── LAYER 6: TELEMETRY HUD DOCK (ACTIVE IN HERO SECTION) ─── */}
       <div
         className="hero-broadcast-dock-left"
         style={{
-          position: "absolute",
+          position: "fixed",
           bottom: "1.5rem",
           left: "2rem",
           zIndex: 12,
@@ -788,7 +804,10 @@ export default function HeroCinematicBackground() {
           border: "1px solid rgba(0, 0, 0, 0.12)",
           borderRadius: "30px",
           boxShadow: "0 8px 30px rgba(0, 0, 0, 0.14)",
-          pointerEvents: "auto",
+          pointerEvents: inHero ? "auto" : "none",
+          opacity: inHero ? 1 : 0,
+          transform: inHero ? "translateY(0)" : "translateY(16px)",
+          transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
           fontFamily: "var(--font-mono)",
           fontSize: "0.68rem",
         }}
@@ -897,7 +916,7 @@ export default function HeroCinematicBackground() {
       <div
         className="hero-broadcast-dock-right"
         style={{
-          position: "absolute",
+          position: "fixed",
           bottom: "1.5rem",
           right: "2rem",
           zIndex: 12,
@@ -911,6 +930,10 @@ export default function HeroCinematicBackground() {
           border: "1px solid rgba(0, 0, 0, 0.12)",
           borderRadius: "30px",
           boxShadow: "0 8px 30px rgba(0, 0, 0, 0.14)",
+          pointerEvents: "none",
+          opacity: inHero ? 1 : 0,
+          transform: inHero ? "translateY(0)" : "translateY(16px)",
+          transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
           fontFamily: "var(--font-mono)",
           fontSize: "0.68rem",
           color: "#4B5563",
