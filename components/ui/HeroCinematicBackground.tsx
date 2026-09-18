@@ -54,7 +54,8 @@ export default function HeroCinematicBackground() {
   const [timecode, setTimecode] = useState("00:04:18:14");
   const [dbLevel, setDbLevel] = useState("-3.2 dB");
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const parallaxRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const videoStageRef = useRef<HTMLDivElement>(null);
+  const mouseRef = useRef({ x: 0, y: 0, rawX: 0, rawY: 0, targetX: 0, targetY: 0 });
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   // Mobile viewport detection
@@ -109,18 +110,26 @@ export default function HeroCinematicBackground() {
     return () => clearInterval(interval);
   }, []);
 
-  // Smooth Parallax Depth Tracking
+  // Smooth Parallax & Mouse Position Tracker
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window;
-      parallaxRef.current.targetX = (e.clientX / innerWidth - 0.5) * 2;
-      parallaxRef.current.targetY = (e.clientY / innerHeight - 0.5) * 2;
+      mouseRef.current.rawX = e.clientX;
+      mouseRef.current.rawY = e.clientY;
+      mouseRef.current.targetX = (e.clientX / innerWidth - 0.5) * 2;
+      mouseRef.current.targetY = (e.clientY / innerHeight - 0.5) * 2;
     };
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
-  // ─── MOTION CANVAS: VOLUMETRIC SMOKE, AUDIO WAVEFORMS, EQUALIZER & EMBERS ───
+  // ─── PREMIUM PURE BACKGROUND MOTION CANVAS ENGINE ─────────────────────────
+  // Includes:
+  // 1. Interactive Follow-Spotlight (Cursor Focus)
+  // 2. 120 BPM Subwoofer Bass Kick & Steadicam Orbital Float
+  // 3. Anamorphic Horizontal Stage Flare Sweeps
+  // 4. Fluid Ember Particle Turbulence (Swirl on Mouse Move)
+  // 5. Audio-Reactive Waveforms & Dynamic 52-Band Spectrum Analyzer
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -154,42 +163,124 @@ export default function HeroCinematicBackground() {
     let phase = 0;
     const barCount = 52;
 
-    // Organic concert haze / smoke puff particles
-    const smokePuffs = Array.from({ length: 18 }, () => ({
+    // Organic concert haze puffs
+    const smokePuffs = Array.from({ length: 16 }, () => ({
       x: Math.random() * width,
       y: height * 0.55 + Math.random() * (height * 0.4),
-      radius: 120 + Math.random() * 160,
-      vx: 0.15 + Math.random() * 0.35,
-      vy: -0.05 - Math.random() * 0.12,
-      alpha: 0.04 + Math.random() * 0.07,
+      radius: 140 + Math.random() * 160,
+      vx: 0.15 + Math.random() * 0.3,
+      vy: -0.05 - Math.random() * 0.1,
+      alpha: 0.035 + Math.random() * 0.055,
     }));
 
-    // Rising concert sparks & golden harmonic dust
-    const sparks = Array.from({ length: 55 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: -0.35 - Math.random() * 0.8,
-      size: 1.2 + Math.random() * 2.4,
-      color:
-        Math.random() > 0.6
-          ? "rgba(230, 20, 56, "
-          : Math.random() > 0.3
-          ? "rgba(184, 134, 11, "
-          : "rgba(0, 180, 216, ",
-      alpha: 0.3 + Math.random() * 0.5,
-    }));
+    // Stage sparks with fluid air resistance
+    const sparks = Array.from({ length: 65 }, () => {
+      const baseVy = -0.4 - Math.random() * 0.85;
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: baseVy,
+        baseVy: baseVy,
+        size: 1.2 + Math.random() * 2.6,
+        color:
+          Math.random() > 0.6
+            ? "rgba(230, 20, 56, "
+            : Math.random() > 0.3
+            ? "rgba(184, 134, 11, "
+            : "rgba(0, 180, 216, ",
+        alpha: 0.35 + Math.random() * 0.5,
+      };
+    });
 
-    const render = () => {
-      parallaxRef.current.x +=
-        (parallaxRef.current.targetX - parallaxRef.current.x) * 0.05;
-      parallaxRef.current.y +=
-        (parallaxRef.current.targetY - parallaxRef.current.y) * 0.05;
+    const render = (timeMs: number) => {
+      const timeSec = timeMs * 0.001;
+
+      // Smooth mouse interpolation
+      mouseRef.current.x +=
+        (mouseRef.current.targetX - mouseRef.current.x) * 0.06;
+      mouseRef.current.y +=
+        (mouseRef.current.targetY - mouseRef.current.y) * 0.06;
+
+      // ─── 1. STEADICAM JIB FLOAT + 120 BPM SUBWOOFER BASS KICK ───
+      // Subwoofer kick pulse every ~0.5s (120 BPM heartbeat rhythm)
+      const beat = Math.sin(timeSec * Math.PI * 2);
+      const subKick = beat > 0.82 ? Math.pow(beat, 6) * 0.016 : 0;
+      const liveAudioBoost = audioData.isPlaying ? audioData.rms * 0.035 : 0;
+      const totalKickScale = 1.0 + subKick + liveAudioBoost;
+
+      // Smooth orbital camera drift
+      const jibX = Math.sin(timeSec * 0.32) * 9;
+      const jibY = Math.cos(timeSec * 0.26) * 7;
+      const parallaxX = mouseRef.current.x * -16;
+      const parallaxY = mouseRef.current.y * -12;
+
+      if (videoStageRef.current) {
+        videoStageRef.current.style.transform = `translate3d(${
+          parallaxX + jibX
+        }px, ${parallaxY + jibY}px, 0) scale(${totalKickScale})`;
+      }
 
       ctx.clearRect(0, 0, width, height);
-      phase += audioData.isPlaying ? 0.048 + audioData.rms * 0.06 : 0.022;
+      phase += audioData.isPlaying ? 0.048 + audioData.rms * 0.06 : 0.024;
 
-      // 1. CONCERT ATMOSPHERIC SMOKE / HAZE PUFFS (Soft Drifting Low Haze)
+      // ─── 2. INTERACTIVE STAGE FOLLOW-SPOTLIGHT (CURSOR FOCUS) ───
+      // Smoothly illuminates the instruments under the cursor with specular luster
+      if (mouseRef.current.rawX > 0 && mouseRef.current.rawY > 0) {
+        const spotX = mouseRef.current.rawX;
+        const spotY = mouseRef.current.rawY;
+        const spotGrad = ctx.createRadialGradient(
+          spotX,
+          spotY,
+          0,
+          spotX,
+          spotY,
+          520
+        );
+        spotGrad.addColorStop(0, "rgba(255, 255, 255, 0.12)");
+        spotGrad.addColorStop(0.35, "rgba(255, 235, 210, 0.05)");
+        spotGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = spotGrad;
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      // ─── 3. ANAMORPHIC HORIZONTAL STAGE FLARE SWEEPS ───
+      // A luminous Panavision concert lens flare gliding vertically
+      const flareCycle = (timeSec * 0.28) % (Math.PI * 2);
+      const flareY = height * 0.42 + Math.sin(flareCycle) * (height * 0.22);
+      const flareIntensity = Math.pow(Math.sin(flareCycle), 4) * 0.42;
+
+      if (flareIntensity > 0.04) {
+        // Horizontal razor flare streak
+        const streakGrad = ctx.createLinearGradient(0, flareY, width, flareY);
+        streakGrad.addColorStop(0, "transparent");
+        streakGrad.addColorStop(0.3, `rgba(230, 20, 56, ${flareIntensity * 0.5})`);
+        streakGrad.addColorStop(0.5, `rgba(255, 255, 255, ${flareIntensity * 0.95})`);
+        streakGrad.addColorStop(0.7, `rgba(184, 134, 11, ${flareIntensity * 0.5})`);
+        streakGrad.addColorStop(1, "transparent");
+
+        ctx.fillStyle = streakGrad;
+        ctx.fillRect(0, flareY - 1.5, width, 3);
+
+        // Central lens halo
+        const haloGrad = ctx.createRadialGradient(
+          width * 0.5,
+          flareY,
+          0,
+          width * 0.5,
+          flareY,
+          180
+        );
+        haloGrad.addColorStop(0, `rgba(255, 255, 255, ${flareIntensity * 0.35})`);
+        haloGrad.addColorStop(0.5, `rgba(230, 20, 56, ${flareIntensity * 0.15})`);
+        haloGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(width * 0.5, flareY, 180, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ─── 4. CONCERT ATMOSPHERIC SMOKE / HAZE DRIFT ───
       smokePuffs.forEach((s) => {
         s.x += s.vx;
         s.y += s.vy;
@@ -214,7 +305,7 @@ export default function HeroCinematicBackground() {
         ctx.fill();
       });
 
-      // 2. REAL-TIME 52-BAND EQUALIZER (Crystal Sharp Spectrum Bars)
+      // ─── 5. REAL-TIME 52-BAND EQUALIZER SPECTRUM ───
       const barWidth = Math.max(3, width / (barCount * 1.8));
       const spacing = barWidth * 0.65;
       const totalW = barCount * (barWidth + spacing);
@@ -241,12 +332,12 @@ export default function HeroCinematicBackground() {
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, barWidth, barH);
 
-        // Crisp neon peak cap
+        // Peak cap dot
         ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
         ctx.fillRect(x, y - 3, barWidth, 2);
       }
 
-      // 3. AUDIO-REACTIVE WAVEFORM RIBBONS (Electric Light Beams)
+      // ─── 6. AUDIO-REACTIVE WAVEFORM RIBBONS ───
       const ribbonCount = 3;
       for (let r = 0; r < ribbonCount; r++) {
         ctx.beginPath();
@@ -286,7 +377,7 @@ export default function HeroCinematicBackground() {
       }
       ctx.shadowBlur = 0;
 
-      // 4. CONCENTRIC OSCILLOSCOPE ACOUSTIC PULSE RINGS
+      // ─── 7. ACOUSTIC OSCILLOSCOPE CENTER PULSE RINGS ───
       const centerX = width / 2;
       const centerY = height * 0.42;
       for (let k = 0; k < 2; k++) {
@@ -305,8 +396,27 @@ export default function HeroCinematicBackground() {
         ctx.setLineDash([]);
       }
 
-      // 5. STAGE SPARKS & EMBERS
+      // ─── 8. FLUID EMBER PARTICLE TURBULENCE (REACTIVE TO CURSOR VELOCITY) ───
+      const curMouseX = mouseRef.current.rawX;
+      const curMouseY = mouseRef.current.rawY;
+
       sparks.forEach((p) => {
+        // Compute fluid air turbulence from cursor
+        if (curMouseX > 0 && curMouseY > 0) {
+          const dx = p.x - curMouseX;
+          const dy = p.y - curMouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 180 && dist > 0) {
+            const force = (1 - dist / 180) * 3.4;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Fluid friction & upward recovery
+        p.vx *= 0.95;
+        p.vy = p.vy * 0.96 + p.baseVy * 0.04;
+
         p.x += p.vx;
         p.y += p.vy;
         if (p.y < 0) p.y = height;
@@ -342,18 +452,15 @@ export default function HeroCinematicBackground() {
         background: "#08090C",
       }}
     >
-      {/* ─── LAYER 1: CINEMATIC VIDEO COMPOSITOR (SLOW CAMERA PUSH + PARALLAX) ─── */}
+      {/* ─── LAYER 1: VIDEO COMPOSITOR WITH STEADICAM JIB + 120 BPM KICK ─── */}
       <div
-        className="hero-slow-camera-push"
+        ref={videoStageRef}
         style={{
           position: "absolute",
           inset: "-4%",
           width: "108%",
           height: "108%",
-          transform: `translate3d(${parallaxRef.current.x * -16}px, ${
-            parallaxRef.current.y * -12
-          }px, 0)`,
-          transition: "transform 0.1s cubic-bezier(0.1, 1, 0.1, 1)",
+          transition: "transform 0.08s ease-out",
           willChange: "transform",
         }}
       >
@@ -422,9 +529,10 @@ export default function HeroCinematicBackground() {
                       }}
                     />
 
-                    {/* Vertical Laser Beam Seam Divider */}
+                    {/* Laser Seam Light Column with Harmonized Cycling Glow */}
                     {index < VIDEO_FEEDS.length - 1 && (
                       <div
+                        className="laser-seam-divider"
                         style={{
                           position: "absolute",
                           top: 0,
@@ -432,13 +540,13 @@ export default function HeroCinematicBackground() {
                           bottom: 0,
                           width: "2px",
                           background: `linear-gradient(180deg, transparent 0%, ${feed.accent} 50%, transparent 100%)`,
-                          boxShadow: `0 0 14px ${feed.accent}`,
+                          boxShadow: `0 0 16px ${feed.accent}, 0 0 32px ${feed.accent}40`,
                           zIndex: 4,
                         }}
                       />
                     )}
 
-                    {/* Camera Title Pill */}
+                    {/* Camera Badge Pill */}
                     <div
                       style={{
                         position: "absolute",
@@ -478,7 +586,7 @@ export default function HeroCinematicBackground() {
               })}
             </div>
           ) : (
-            /* SOLO 9:16 WITH AMBIENT HORIZONTAL EXPANSION */
+            /* SOLO 9:16 WITH AMBIENT EXPANSION */
             <div
               style={{
                 position: "relative",
@@ -535,7 +643,7 @@ export default function HeroCinematicBackground() {
           )}
         </div>
 
-        {/* MOBILE: Native 100% Full-Bleed 9:16 Portrait Viewport */}
+        {/* MOBILE: Native 100% Full-Bleed 9:16 Viewport */}
         <div
           className="hero-mobile-video-wrapper"
           style={{
@@ -583,7 +691,7 @@ export default function HeroCinematicBackground() {
         </div>
       </div>
 
-      {/* ─── LAYER 2: VOLUMETRIC LIGHT BEAMS (GOD RAYS) ─── */}
+      {/* ─── LAYER 2: VOLUMETRIC LIGHT BEAMS ─── */}
       <div
         className="volumetric-light-left"
         style={{
@@ -595,8 +703,8 @@ export default function HeroCinematicBackground() {
           background:
             "linear-gradient(135deg, rgba(230, 20, 56, 0.22) 0%, rgba(255, 255, 255, 0.08) 35%, transparent 70%)",
           transform: `rotate(-22deg) translate3d(${
-            parallaxRef.current.x * 24
-          }px, ${parallaxRef.current.y * 18}px, 0)`,
+            mouseRef.current.x * 24
+          }px, ${mouseRef.current.y * 18}px, 0)`,
           transformOrigin: "top left",
           mixBlendMode: "screen",
           pointerEvents: "none",
@@ -615,8 +723,8 @@ export default function HeroCinematicBackground() {
           background:
             "linear-gradient(-135deg, rgba(184, 134, 11, 0.22) 0%, rgba(255, 255, 255, 0.08) 35%, transparent 70%)",
           transform: `rotate(22deg) translate3d(${
-            parallaxRef.current.x * -24
-          }px, ${parallaxRef.current.y * 18}px, 0)`,
+            mouseRef.current.x * -24
+          }px, ${mouseRef.current.y * 18}px, 0)`,
           transformOrigin: "top right",
           mixBlendMode: "screen",
           pointerEvents: "none",
@@ -625,7 +733,7 @@ export default function HeroCinematicBackground() {
         }}
       />
 
-      {/* ─── LAYER 3: SUBTLE 35MM CINEMATIC FILM GRAIN TEXTURE ─── */}
+      {/* ─── LAYER 3: 35MM CINEMATIC FILM GRAIN ─── */}
       <div
         style={{
           position: "absolute",
@@ -639,7 +747,7 @@ export default function HeroCinematicBackground() {
         }}
       />
 
-      {/* ─── LAYER 4: CANVAS AUDIO WAVEFORMS, EQUALIZER & SMOKE ─── */}
+      {/* ─── LAYER 4: CANVAS AUDIO WAVEFORMS, EQUALIZER & FOLLOW-SPOTLIGHT ─── */}
       <canvas
         ref={canvasRef}
         style={{
@@ -650,8 +758,7 @@ export default function HeroCinematicBackground() {
         }}
       />
 
-      {/* ─── LAYER 5: CRYSTAL CLEAR CONTRAST BALANCING MASK ─── */}
-      {/* Precision non-milky radial vignette that makes typography razor sharp while keeping 100% video clarity */}
+      {/* ─── LAYER 5: CRYSTAL CLEAR READABILITY VIGNETTE ─── */}
       <div
         style={{
           position: "absolute",
@@ -663,7 +770,7 @@ export default function HeroCinematicBackground() {
         }}
       />
 
-      {/* ─── LAYER 6: TELEMETRY HUD DOCK (BROADCAST CONTROL) ─── */}
+      {/* ─── LAYER 6: TELEMETRY HUD DOCK ─── */}
       <div
         className="hero-broadcast-dock-left"
         style={{
@@ -712,7 +819,7 @@ export default function HeroCinematicBackground() {
           </span>
         </div>
 
-        {/* Desktop View Mode Switcher */}
+        {/* View Mode Switcher */}
         <div
           className="hidden-on-mobile-dock"
           style={{
@@ -786,7 +893,7 @@ export default function HeroCinematicBackground() {
         </div>
       </div>
 
-      {/* Telemetry FOH dB & Timecode (Bottom Right) */}
+      {/* Telemetry FOH dB & Timecode */}
       <div
         className="hero-broadcast-dock-right"
         style={{
@@ -825,20 +932,18 @@ export default function HeroCinematicBackground() {
       </div>
 
       <style>{`
-        /* Slow Cinematic Camera Push */
-        .hero-slow-camera-push {
-          animation: slowCameraPush 24s ease-in-out infinite alternate;
-        }
-        @keyframes slowCameraPush {
-          0% { transform: scale(1.0); }
-          50% { transform: scale(1.05) translateY(-6px); }
-          100% { transform: scale(1.0); }
-        }
-
-        /* Volumetric Light Pulse */
         @keyframes volumetricPulse {
           0% { opacity: 0.7; transform: rotate(-22deg) scale(0.96); }
           100% { opacity: 1.0; transform: rotate(-18deg) scale(1.04); }
+        }
+
+        @keyframes seamGlowPulse {
+          0% { opacity: 0.6; }
+          50% { opacity: 1; }
+          100% { opacity: 0.6; }
+        }
+        .laser-seam-divider {
+          animation: seamGlowPulse 3s ease-in-out infinite;
         }
 
         @media (max-width: 768px) {
