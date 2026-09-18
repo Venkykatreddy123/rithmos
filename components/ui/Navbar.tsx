@@ -57,17 +57,17 @@ export default function Navbar() {
           alignItems: "center",
           justifyContent: "space-between",
           background: scrolled
-            ? "rgba(255, 255, 255, 0.94)"
-            : "rgba(255, 255, 255, 0.88)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
+            ? "rgba(255, 255, 255, 0.96)"
+            : "rgba(0, 0, 0, 0.2)",
+          backdropFilter: scrolled ? "blur(20px)" : "blur(12px)",
+          WebkitBackdropFilter: scrolled ? "blur(20px)" : "blur(12px)",
           borderBottom: scrolled
             ? "1px solid rgba(0, 0, 0, 0.08)"
-            : "1px solid rgba(0, 0, 0, 0.05)",
+            : "1px solid rgba(255, 255, 255, 0.08)",
           boxShadow: scrolled
             ? "0 4px 24px rgba(0, 0, 0, 0.06)"
             : "none",
-          transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+          transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       >
         {/* Logo */}
@@ -91,8 +91,10 @@ export default function Navbar() {
               height: "42px",
               width: "auto",
               display: "block",
-              filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.06))",
-              transition: "transform 0.25s ease",
+              filter: scrolled
+                ? "drop-shadow(0 2px 8px rgba(0,0,0,0.06))"
+                : "drop-shadow(0 2px 8px rgba(0,0,0,0.2)) brightness(1.15)",
+              transition: "transform 0.25s ease, filter 0.4s ease",
             }}
           />
         </Link>
@@ -114,8 +116,13 @@ export default function Navbar() {
                 href={link.href}
                 className="nav-link"
                 style={{
-                  color: isActive ? "var(--red)" : undefined,
+                  color: isActive
+                    ? "var(--red)"
+                    : scrolled
+                    ? "#2D3139"
+                    : "rgba(255, 255, 255, 0.9)",
                   fontWeight: isActive ? 700 : undefined,
+                  transition: "color 0.4s ease",
                 }}
               >
                 {link.label}

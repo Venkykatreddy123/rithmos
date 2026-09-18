@@ -153,53 +153,85 @@ export default function HomePage() {
             position: "relative",
             zIndex: 10,
             textAlign: "center",
-            maxWidth: "1280px",
+            maxWidth: "1100px",
             margin: "0 auto",
             padding: "0 1.5rem",
             width: "100%",
           }}
         >
-          {/* Top HUD Telemetry Pill */}
+          {/* Season Badge */}
           <div
             id="hero-hud-badge"
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "0.85rem",
-              marginBottom: "1.5rem",
+              gap: "0.75rem",
+              marginBottom: "2rem",
               flexWrap: "wrap",
               justifyContent: "center",
             }}
           >
-            <span className="hud-badge red" style={{ fontSize: "0.8rem", padding: "0.45rem 1rem" }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 1.1rem",
+                background: "rgba(230, 20, 56, 0.15)",
+                border: "1px solid rgba(230, 20, 56, 0.35)",
+                borderRadius: "100px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                color: "#FFFFFF",
+                backdropFilter: "blur(12px)",
+              }}
+            >
               <span className="live-indicator" /> SEASON ONE · HYDERABAD 2026
             </span>
-            <span className="hud-badge gold" style={{ fontSize: "0.8rem", padding: "0.45rem 1rem" }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                padding: "0.5rem 1.1rem",
+                background: "rgba(184, 134, 11, 0.12)",
+                border: "1px solid rgba(184, 134, 11, 0.3)",
+                borderRadius: "100px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                color: "rgba(255, 255, 255, 0.9)",
+                backdropFilter: "blur(12px)",
+              }}
+            >
               🏆 ₹25,00,000 CAREER LAUNCHPAD
             </span>
           </div>
 
-          {/* Main Display Headline (Restored Quotes with Crystal Clarity) */}
+          {/* Main Display Headline — White on dark video for maximum clarity */}
           <h1
             ref={headlineRef}
-            className="display-hero"
             style={{
-              fontSize: "clamp(2.6rem, 8.5vw, 7.5rem)",
+              fontSize: "clamp(3rem, 9vw, 8rem)",
               fontFamily: "var(--font-display)",
               fontWeight: 900,
               fontStyle: "italic",
               textTransform: "uppercase",
-              color: "#0F1115",
-              letterSpacing: "-0.01em",
-              lineHeight: 0.94,
-              textShadow: "0 2px 25px rgba(255, 255, 255, 0.95), 0 0 12px rgba(255, 255, 255, 0.8), 0 8px 32px rgba(0, 0, 0, 0.25)",
+              color: "#FFFFFF",
+              letterSpacing: "-0.02em",
+              lineHeight: 0.92,
+              textShadow: "0 4px 30px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.3)",
+              margin: 0,
             }}
           >
             Every Band<br />
             <span
               style={{
-                color: "var(--red)",
-                textShadow: "0 0 35px rgba(230, 20, 56, 0.6), 0 2px 20px rgba(255, 255, 255, 0.8)",
+                color: "#FF2A55",
+                textShadow: "0 0 40px rgba(230, 20, 56, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4)",
                 display: "inline-block",
               }}
             >
@@ -211,13 +243,13 @@ export default function HomePage() {
             ref={subRef}
             style={{
               fontFamily: "var(--font-display)",
-              fontWeight: 900,
-              fontSize: "clamp(1.1rem, 3.2vw, 2.4rem)",
-              letterSpacing: "0.14em",
+              fontWeight: 700,
+              fontSize: "clamp(1rem, 3vw, 2.2rem)",
+              letterSpacing: "0.18em",
               textTransform: "uppercase",
-              color: "#0F1115",
-              marginTop: "1.25rem",
-              textShadow: "0 2px 20px rgba(255, 255, 255, 0.95), 0 0 10px rgba(255, 255, 255, 0.8), 0 4px 18px rgba(0, 0, 0, 0.2)",
+              color: "rgba(255, 255, 255, 0.85)",
+              marginTop: "1.5rem",
+              textShadow: "0 2px 15px rgba(0, 0, 0, 0.4)",
             }}
           >
             Every Story Needs a Stage
@@ -228,9 +260,9 @@ export default function HomePage() {
             id="hero-cta-group"
             style={{
               display: "flex",
-              gap: "1.2rem",
+              gap: "1rem",
               justifyContent: "center",
-              marginTop: "2.2rem",
+              marginTop: "2.8rem",
               marginBottom: "2.5rem",
               flexWrap: "wrap",
             }}
@@ -239,23 +271,33 @@ export default function HomePage() {
               href="/contact"
               className="btn-primary"
               style={{
-                padding: "1rem 2.4rem",
+                padding: "1rem 2.6rem",
                 borderRadius: "6px",
                 fontSize: "1rem",
-                boxShadow: "0 6px 25px rgba(230, 20, 56, 0.35)",
               }}
             >
-              Register Your Band (Free) →
+              Register Your Band →
             </Link>
             <Link
               href="/competition"
-              className="btn-outline"
               style={{
-                padding: "1rem 2.4rem",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "1rem 2.6rem",
                 borderRadius: "6px",
                 fontSize: "1rem",
-                background: "rgba(255, 255, 255, 0.9)",
-                backdropFilter: "blur(12px)",
+                fontFamily: "var(--font-display)",
+                fontWeight: 800,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                color: "#FFFFFF",
+                background: "rgba(255, 255, 255, 0.12)",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                backdropFilter: "blur(16px)",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
               }}
             >
               Explore The 4 Stages
@@ -267,24 +309,24 @@ export default function HomePage() {
         <div
           style={{
             position: "absolute",
-            bottom: "1.5rem",
+            bottom: "2rem",
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 10,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "0.4rem",
+            gap: "0.5rem",
             pointerEvents: "none",
           }}
         >
           <span
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.65rem",
-              letterSpacing: "0.2em",
+              fontSize: "0.6rem",
+              letterSpacing: "0.25em",
               textTransform: "uppercase",
-              color: "var(--muted)",
+              color: "rgba(255, 255, 255, 0.5)",
             }}
           >
             SCROLL TO EXPLORE
@@ -292,8 +334,8 @@ export default function HomePage() {
           <div
             style={{
               width: "1px",
-              height: "36px",
-              background: "linear-gradient(to bottom, var(--red), transparent)",
+              height: "32px",
+              background: "linear-gradient(to bottom, rgba(230, 20, 56, 0.7), transparent)",
               animation: "float 2s ease-in-out infinite",
             }}
           />
