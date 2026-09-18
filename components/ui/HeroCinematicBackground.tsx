@@ -9,7 +9,6 @@ interface VideoFeed {
   badge: string;
   fileName: string;
   title: string;
-  detail: string;
   src: string;
   poster: string;
   accent: string;
@@ -21,8 +20,7 @@ const VIDEO_FEEDS: VideoFeed[] = [
     label: "CAM 01 // CAMERA MOVES",
     badge: "GUITAR",
     fileName: "Camera_moves_along_electric_guitar",
-    title: "Camera Moves Along Electric Guitar",
-    detail: "Macro Strings & Fretboard · 9:16 Native",
+    title: "Electric Guitar Strings & Fretboard",
     src: "/videos/guitar-cinematic.mp4",
     poster: "/images/guitar-8k.jpg",
     accent: "#E61438",
@@ -32,8 +30,7 @@ const VIDEO_FEEDS: VideoFeed[] = [
     label: "CAM 02 // CAMERA MOVING",
     badge: "BRASS",
     fileName: "Camera_moving_through_French_horn",
-    title: "Camera Moving Through French Horn",
-    detail: "Acoustic Golden Bell Flight · 9:16 Native",
+    title: "French Horn Acoustic Interior",
     src: "/videos/brass-cinematic.mp4",
     poster: "/images/cinematic_stage_8k.jpg",
     accent: "#B8860B",
@@ -44,7 +41,6 @@ const VIDEO_FEEDS: VideoFeed[] = [
     badge: "ENERGY",
     fileName: "Sound_energy_traveling_through",
     title: "Sound Energy Traveling Through Instrument",
-    detail: "Harmonic Acoustic Shockwave · 9:16 Native",
     src: "/videos/sound-energy.mp4",
     poster: "/images/epic_music_stage_background.jpg",
     accent: "#00B4D8",
@@ -58,32 +54,28 @@ export default function HeroCinematicBackground() {
   const [timecode, setTimecode] = useState("00:04:18:14");
   const [dbLevel, setDbLevel] = useState("-3.2 dB");
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const parallaxRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  // Detect mobile viewport for tailored ratio conversion
+  // Mobile viewport detection
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Ensure all videos play smoothly in sync
+  // Autoplay and keep videos synchronized
   useEffect(() => {
     videoRefs.current.forEach((video) => {
       if (video) {
         video.muted = true;
-        video.play().catch(() => {
-          // Handled gracefully if browser restricts initial autoplay
-        });
+        video.play().catch(() => {});
       }
     });
   }, [viewMode, activeFeed]);
 
-  // Auto-cycle cameras smoothly every 7 seconds on mobile or in solo mode
+  // Smooth camera auto-cycle on mobile
   useEffect(() => {
     if (viewMode === "merged" && !isMobile) return;
     const timer = setInterval(() => {
@@ -92,7 +84,7 @@ export default function HeroCinematicBackground() {
     return () => clearInterval(timer);
   }, [viewMode, isMobile]);
 
-  // Live broadcast timecode counter and simulated dB meter
+  // Broadcast timecode & dB counter
   useEffect(() => {
     let frame = 14;
     let sec = 18;
@@ -110,26 +102,25 @@ export default function HeroCinematicBackground() {
       const pad = (n: number) => String(n).padStart(2, "0");
       setTimecode(`00:${pad(min)}:${pad(sec)}:${pad(frame)}`);
 
-      // Jitter dB meter
-      const jitter = (-1.5 - Math.random() * 4).toFixed(1);
+      const jitter = (-1.8 - Math.random() * 3.5).toFixed(1);
       setDbLevel(`${jitter} dB`);
     }, 100);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Parallax mouse tracker
+  // Smooth Parallax Depth Tracking
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window;
-      mouseRef.current.targetX = (e.clientX / innerWidth - 0.5) * 2;
-      mouseRef.current.targetY = (e.clientY / innerHeight - 0.5) * 2;
+      parallaxRef.current.targetX = (e.clientX / innerWidth - 0.5) * 2;
+      parallaxRef.current.targetY = (e.clientY / innerHeight - 0.5) * 2;
     };
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
-  // Video-Like Motion Graphics Canvas: 48-Band Equalizer, Harmonic Light Ribbons & Embers
+  // ─── MOTION CANVAS: VOLUMETRIC SMOKE, AUDIO WAVEFORMS, EQUALIZER & EMBERS ───
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -161,119 +152,161 @@ export default function HeroCinematicBackground() {
     });
 
     let phase = 0;
-    const barCount = 48;
-    const particles = Array.from({ length: 65 }, () => ({
+    const barCount = 52;
+
+    // Organic concert haze / smoke puff particles
+    const smokePuffs = Array.from({ length: 18 }, () => ({
+      x: Math.random() * width,
+      y: height * 0.55 + Math.random() * (height * 0.4),
+      radius: 120 + Math.random() * 160,
+      vx: 0.15 + Math.random() * 0.35,
+      vy: -0.05 - Math.random() * 0.12,
+      alpha: 0.04 + Math.random() * 0.07,
+    }));
+
+    // Rising concert sparks & golden harmonic dust
+    const sparks = Array.from({ length: 55 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: -0.4 - Math.random() * 0.9,
-      size: 1.4 + Math.random() * 2.8,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: -0.35 - Math.random() * 0.8,
+      size: 1.2 + Math.random() * 2.4,
       color:
         Math.random() > 0.6
           ? "rgba(230, 20, 56, "
           : Math.random() > 0.3
           ? "rgba(184, 134, 11, "
           : "rgba(0, 180, 216, ",
-      alpha: 0.25 + Math.random() * 0.55,
+      alpha: 0.3 + Math.random() * 0.5,
     }));
 
     const render = () => {
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.05;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.05;
+      parallaxRef.current.x +=
+        (parallaxRef.current.targetX - parallaxRef.current.x) * 0.05;
+      parallaxRef.current.y +=
+        (parallaxRef.current.targetY - parallaxRef.current.y) * 0.05;
 
       ctx.clearRect(0, 0, width, height);
-      phase += audioData.isPlaying ? 0.045 + audioData.rms * 0.06 : 0.024;
+      phase += audioData.isPlaying ? 0.048 + audioData.rms * 0.06 : 0.022;
 
-      // ─── 1. Real-Time Equalizer Spectrum Bars (Stage Base) ───
+      // 1. CONCERT ATMOSPHERIC SMOKE / HAZE PUFFS (Soft Drifting Low Haze)
+      smokePuffs.forEach((s) => {
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.x - s.radius > width) s.x = -s.radius;
+        if (s.y + s.radius < height * 0.4) s.y = height + s.radius * 0.5;
+
+        const grad = ctx.createRadialGradient(
+          s.x,
+          s.y,
+          0,
+          s.x,
+          s.y,
+          s.radius
+        );
+        grad.addColorStop(0, `rgba(255, 255, 255, ${s.alpha * 1.5})`);
+        grad.addColorStop(0.5, `rgba(240, 240, 245, ${s.alpha * 0.8})`);
+        grad.addColorStop(1, "transparent");
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 2. REAL-TIME 52-BAND EQUALIZER (Crystal Sharp Spectrum Bars)
       const barWidth = Math.max(3, width / (barCount * 1.8));
       const spacing = barWidth * 0.65;
       const totalW = barCount * (barWidth + spacing);
       const startX = (width - totalW) / 2;
-      const baseY = height * 0.89;
+      const baseY = height * 0.9;
 
       for (let i = 0; i < barCount; i++) {
         const norm = i / barCount;
         const bell = Math.sin(norm * Math.PI);
-        const wave = Math.sin(norm * 14 + phase * 1.8) * 0.4 + 0.6;
-        const liveBoost = audioData.isPlaying ? audioData.rms * 120 : 0;
+        const wave = Math.sin(norm * 14 + phase * 1.8) * 0.42 + 0.58;
+        const liveBoost = audioData.isPlaying ? audioData.rms * 130 : 0;
         const barH =
-          (18 + bell * 46 * wave + liveBoost * bell) *
-          (0.8 + Math.sin(i * 0.8 + phase * 2) * 0.2);
+          (16 + bell * 50 * wave + liveBoost * bell) *
+          (0.85 + Math.sin(i * 0.85 + phase * 2) * 0.2);
 
         const x = startX + i * (barWidth + spacing);
         const y = baseY - barH;
 
         const grad = ctx.createLinearGradient(0, baseY, 0, y);
-        grad.addColorStop(0, "rgba(230, 20, 56, 0.85)");
-        grad.addColorStop(0.5, "rgba(184, 134, 11, 0.75)");
-        grad.addColorStop(1, "rgba(0, 180, 216, 0.85)");
+        grad.addColorStop(0, "rgba(230, 20, 56, 0.95)");
+        grad.addColorStop(0.5, "rgba(184, 134, 11, 0.85)");
+        grad.addColorStop(1, "rgba(0, 180, 216, 0.95)");
 
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, barWidth, barH);
 
-        // Peak cap dot
-        ctx.fillStyle = "rgba(230, 20, 56, 0.95)";
+        // Crisp neon peak cap
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
         ctx.fillRect(x, y - 3, barWidth, 2);
       }
 
-      // ─── 2. Flowing Audio Waveform Ribbons (Cinematic Light Streams) ───
+      // 3. AUDIO-REACTIVE WAVEFORM RIBBONS (Electric Light Beams)
       const ribbonCount = 3;
       for (let r = 0; r < ribbonCount; r++) {
         ctx.beginPath();
-        const baseAmp = 36 + r * 20;
-        const amp = audioData.isPlaying ? baseAmp + audioData.rms * 100 : baseAmp;
-        const freq = 0.0022 + r * 0.0008;
+        const baseAmp = 38 + r * 22;
+        const amp = audioData.isPlaying
+          ? baseAmp + audioData.rms * 110
+          : baseAmp;
+        const freq = 0.0024 + r * 0.0008;
         const speed = phase * (1.1 + r * 0.4);
-        const yOffset = height * (0.45 + r * 0.09);
+        const yOffset = height * (0.44 + r * 0.08);
 
         ctx.moveTo(0, yOffset);
-        for (let x = 0; x <= width; x += 14) {
+        for (let x = 0; x <= width; x += 12) {
           const y =
             yOffset +
-            Math.sin(x * freq + speed) * amp * Math.cos(x * 0.0012 + speed * 0.45);
+            Math.sin(x * freq + speed) *
+              amp *
+              Math.cos(x * 0.0012 + speed * 0.45);
           ctx.lineTo(x, y);
         }
 
         ctx.lineWidth = r === 0 ? 3.5 : 2;
         if (r === 0) {
-          ctx.strokeStyle = "rgba(230, 20, 56, 0.6)";
-          ctx.shadowColor = "rgba(230, 20, 56, 0.8)";
+          ctx.strokeStyle = "rgba(230, 20, 56, 0.85)";
+          ctx.shadowColor = "rgba(230, 20, 56, 0.9)";
           ctx.shadowBlur = 18;
         } else if (r === 1) {
-          ctx.strokeStyle = "rgba(184, 134, 11, 0.55)";
-          ctx.shadowColor = "rgba(184, 134, 11, 0.7)";
+          ctx.strokeStyle = "rgba(184, 134, 11, 0.75)";
+          ctx.shadowColor = "rgba(184, 134, 11, 0.85)";
           ctx.shadowBlur = 14;
         } else {
-          ctx.strokeStyle = "rgba(0, 180, 216, 0.5)";
-          ctx.shadowColor = "rgba(0, 180, 216, 0.6)";
-          ctx.shadowBlur = 10;
+          ctx.strokeStyle = "rgba(0, 180, 216, 0.8)";
+          ctx.shadowColor = "rgba(0, 180, 216, 0.9)";
+          ctx.shadowBlur = 12;
         }
         ctx.stroke();
       }
       ctx.shadowBlur = 0;
 
-      // ─── 3. Pulsating Center Oscilloscope Audio Rings (Behind Headline) ───
+      // 4. CONCENTRIC OSCILLOSCOPE ACOUSTIC PULSE RINGS
       const centerX = width / 2;
       const centerY = height * 0.42;
-      const ringCount = 2;
-      for (let k = 0; k < ringCount; k++) {
+      for (let k = 0; k < 2; k++) {
         const ringRadius =
           140 +
-          k * 85 +
-          Math.sin(phase * 1.5 + k) * 15 +
-          (audioData.isPlaying ? audioData.rms * 60 : 0);
+          k * 90 +
+          Math.sin(phase * 1.5 + k) * 16 +
+          (audioData.isPlaying ? audioData.rms * 65 : 0);
         ctx.beginPath();
         ctx.arc(centerX, centerY, ringRadius, 0, Math.PI * 2);
         ctx.strokeStyle =
-          k === 0 ? "rgba(230, 20, 56, 0.25)" : "rgba(184, 134, 11, 0.2)";
+          k === 0 ? "rgba(230, 20, 56, 0.35)" : "rgba(184, 134, 11, 0.28)";
         ctx.lineWidth = 1.5;
         ctx.setLineDash([8, 12]);
         ctx.stroke();
         ctx.setLineDash([]);
       }
 
-      // ─── 4. Stage Embers & Rising Harmonic Sparks ───
-      particles.forEach((p) => {
+      // 5. STAGE SPARKS & EMBERS
+      sparks.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
         if (p.y < 0) p.y = height;
@@ -306,265 +339,307 @@ export default function HeroCinematicBackground() {
         zIndex: 0,
         overflow: "hidden",
         pointerEvents: "none",
-        background: "#0F1115",
+        background: "#08090C",
       }}
     >
-      {/* ─── LAYER 1: VIDEO COMPOSITOR (DESKTOP 27:16 TRIPTYCH & MOBILE 9:16 NATIVE) ─── */}
-
-      {/* A. DESKTOP LAYOUT: 3x (9:16) Columns = 27:16 Widescreen Panoramic Stage Wall */}
+      {/* ─── LAYER 1: CINEMATIC VIDEO COMPOSITOR (SLOW CAMERA PUSH + PARALLAX) ─── */}
       <div
-        className="hero-desktop-video-wrapper"
+        className="hero-slow-camera-push"
         style={{
           position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          transition: "opacity 0.6s ease",
+          inset: "-4%",
+          width: "108%",
+          height: "108%",
+          transform: `translate3d(${parallaxRef.current.x * -16}px, ${
+            parallaxRef.current.y * -12
+          }px, 0)`,
+          transition: "transform 0.1s cubic-bezier(0.1, 1, 0.1, 1)",
+          willChange: "transform",
         }}
       >
-        {viewMode === "merged" ? (
-          /* MERGED 3-COLUMN PANORAMIC TRIPTYCH */
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "stretch",
-            }}
-          >
-            {VIDEO_FEEDS.map((feed, index) => {
-              const isFocused = activeFeed === index;
-              return (
-                <div
-                  key={feed.id}
-                  style={{
-                    position: "relative",
-                    flex: isFocused ? 1.15 : 1,
-                    height: "100%",
-                    overflow: "hidden",
-                    borderRight:
-                      index < VIDEO_FEEDS.length - 1
-                        ? "2px solid rgba(255, 255, 255, 0.12)"
-                        : "none",
-                    boxShadow: isFocused ? `inset 0 0 40px ${feed.accent}30` : "none",
-                    transition: "flex 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                >
-                  <video
-                    ref={(el) => {
-                      videoRefs.current[index] = el;
-                    }}
-                    src={feed.src}
-                    poster={feed.poster}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "center center",
-                      filter: isFocused
-                        ? "brightness(0.96) contrast(1.18) saturate(1.28)"
-                        : "brightness(0.86) contrast(1.12) saturate(1.08)",
-                      transform: isFocused ? "scale(1.03)" : "scale(1)",
-                      transition: "transform 0.6s ease, filter 0.6s ease",
-                    }}
-                  />
-
-                  {/* Laser Seam Light Column Divider */}
-                  {index < VIDEO_FEEDS.length - 1 && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: "2px",
-                        background: `linear-gradient(180deg, transparent 0%, ${feed.accent} 50%, transparent 100%)`,
-                        boxShadow: `0 0 12px ${feed.accent}`,
-                        zIndex: 4,
-                      }}
-                    />
-                  )}
-
-                  {/* Desktop Camera Label Chip */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "5.5rem",
-                      left: "1.5rem",
-                      zIndex: 6,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.45rem",
-                      padding: "0.25rem 0.65rem",
-                      background: "rgba(15, 17, 21, 0.8)",
-                      backdropFilter: "blur(12px)",
-                      borderRadius: "18px",
-                      border: `1px solid ${feed.accent}70`,
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.62rem",
-                      color: "#FFFFFF",
-                      letterSpacing: "0.06em",
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: "6px",
-                        height: "6px",
-                        borderRadius: "50%",
-                        background: feed.accent,
-                        boxShadow: `0 0 6px ${feed.accent}`,
-                      }}
-                    />
-                    <span>{feed.badge} // 9:16</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          /* SOLO FOCUS WITH AMBIENT RATIO EXTENSION (No 300% crop stretch!) */
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-            }}
-          >
-            {/* Ambient Blurred Full-Bleed 16:9 Backdrop */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "-10%",
-                width: "120%",
-                height: "120%",
-                filter: "blur(40px) brightness(0.7)",
-                opacity: 0.65,
-                transform: "scale(1.1)",
-              }}
-            >
-              <video
-                src={VIDEO_FEEDS[activeFeed].src}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            </div>
-
-            {/* Sharp Uncropped 9:16 Framed Video */}
+        {/* DESKTOP: 3x (9:16) Columns = 27:16 Panoramic Widescreen Concert Triptych */}
+        <div
+          className="hero-desktop-video-wrapper"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+          }}
+        >
+          {viewMode === "merged" ? (
             <div
               style={{
                 position: "relative",
-                height: "92%",
-                aspectRatio: "9/16",
-                borderRadius: "20px",
-                overflow: "hidden",
-                border: `2px solid ${VIDEO_FEEDS[activeFeed].accent}`,
-                boxShadow: `0 0 60px ${VIDEO_FEEDS[activeFeed].accent}50, 0 20px 40px rgba(0,0,0,0.5)`,
-                zIndex: 3,
-                animation: "soloZoomIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-            >
-              <video
-                src={VIDEO_FEEDS[activeFeed].src}
-                poster={VIDEO_FEEDS[activeFeed].poster}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* B. MOBILE LAYOUT: Full-Screen Native 9:16 Viewport Matching Phone Screen */}
-      <div
-        className="hero-mobile-video-wrapper"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-          display: "none",
-        }}
-      >
-        {VIDEO_FEEDS.map((feed, index) => {
-          const isActive = activeFeed === index;
-          return (
-            <div
-              key={feed.id}
-              style={{
-                position: "absolute",
-                inset: 0,
                 width: "100%",
                 height: "100%",
-                opacity: isActive ? 1 : 0,
-                transform: isActive ? "scale(1)" : "scale(1.04)",
-                transition: "opacity 0.8s ease-in-out, transform 0.8s ease-in-out",
-                willChange: "opacity, transform",
+                display: "flex",
+                alignItems: "stretch",
               }}
             >
-              <video
-                src={feed.src}
-                poster={feed.poster}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
+              {VIDEO_FEEDS.map((feed, index) => {
+                const isFocused = activeFeed === index;
+                return (
+                  <div
+                    key={feed.id}
+                    style={{
+                      position: "relative",
+                      flex: isFocused ? 1.15 : 1,
+                      height: "100%",
+                      overflow: "hidden",
+                      borderRight:
+                        index < VIDEO_FEEDS.length - 1
+                          ? "1px solid rgba(255, 255, 255, 0.18)"
+                          : "none",
+                      boxShadow: isFocused
+                        ? `inset 0 0 60px ${feed.accent}45`
+                        : "none",
+                      transition: "flex 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
+                  >
+                    <video
+                      ref={(el) => {
+                        videoRefs.current[index] = el;
+                      }}
+                      src={feed.src}
+                      poster={feed.poster}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="auto"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: "center center",
+                        filter: isFocused
+                          ? "contrast(1.15) saturate(1.3) brightness(1.05)"
+                          : "contrast(1.1) saturate(1.18) brightness(0.96)",
+                        transform: isFocused ? "scale(1.04)" : "scale(1)",
+                        transition: "transform 0.6s ease, filter 0.6s ease",
+                      }}
+                    />
+
+                    {/* Vertical Laser Beam Seam Divider */}
+                    {index < VIDEO_FEEDS.length - 1 && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                          bottom: 0,
+                          width: "2px",
+                          background: `linear-gradient(180deg, transparent 0%, ${feed.accent} 50%, transparent 100%)`,
+                          boxShadow: `0 0 14px ${feed.accent}`,
+                          zIndex: 4,
+                        }}
+                      />
+                    )}
+
+                    {/* Camera Title Pill */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "5.5rem",
+                        left: "1.5rem",
+                        zIndex: 6,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.45rem",
+                        padding: "0.3rem 0.75rem",
+                        background: "rgba(8, 9, 12, 0.85)",
+                        backdropFilter: "blur(14px)",
+                        WebkitBackdropFilter: "blur(14px)",
+                        borderRadius: "20px",
+                        border: `1px solid ${feed.accent}80`,
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.64rem",
+                        color: "#FFFFFF",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "7px",
+                          height: "7px",
+                          borderRadius: "50%",
+                          background: feed.accent,
+                          boxShadow: `0 0 8px ${feed.accent}`,
+                        }}
+                      />
+                      <span style={{ fontWeight: 700 }}>
+                        {feed.badge} // 9:16 NATIVE
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* SOLO 9:16 WITH AMBIENT HORIZONTAL EXPANSION */
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
                 style={{
+                  position: "absolute",
+                  inset: "-15%",
+                  filter: "blur(45px) brightness(0.65) saturate(1.3)",
+                  transform: "scale(1.15)",
+                }}
+              >
+                <video
+                  src={VIDEO_FEEDS[activeFeed].src}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+
+              <div
+                style={{
+                  position: "relative",
+                  height: "92%",
+                  aspectRatio: "9/16",
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  border: `2px solid ${VIDEO_FEEDS[activeFeed].accent}`,
+                  boxShadow: `0 0 70px ${VIDEO_FEEDS[activeFeed].accent}60`,
+                  zIndex: 3,
+                }}
+              >
+                <video
+                  src={VIDEO_FEEDS[activeFeed].src}
+                  poster={VIDEO_FEEDS[activeFeed].poster}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* MOBILE: Native 100% Full-Bleed 9:16 Portrait Viewport */}
+        <div
+          className="hero-mobile-video-wrapper"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            display: "none",
+          }}
+        >
+          {VIDEO_FEEDS.map((feed, index) => {
+            const isActive = activeFeed === index;
+            return (
+              <div
+                key={feed.id}
+                style={{
+                  position: "absolute",
+                  inset: 0,
                   width: "100%",
                   height: "100%",
-                  objectFit: "cover",
-                  objectPosition: "center 40%",
-                  filter: "brightness(0.95) contrast(1.15) saturate(1.22)",
+                  opacity: isActive ? 1 : 0,
+                  transform: isActive ? "scale(1)" : "scale(1.04)",
+                  transition: "opacity 0.75s ease, transform 0.75s ease",
                 }}
-              />
-            </div>
-          );
-        })}
+              >
+                <video
+                  src={feed.src}
+                  poster={feed.poster}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center 40%",
+                    filter: "contrast(1.15) saturate(1.25) brightness(1.02)",
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ─── LAYER 2: Stage Motion Graphics & LED Grid Texture ─── */}
+      {/* ─── LAYER 2: VOLUMETRIC LIGHT BEAMS (GOD RAYS) ─── */}
+      <div
+        className="volumetric-light-left"
+        style={{
+          position: "absolute",
+          top: "-20%",
+          left: "5%",
+          width: "40vw",
+          height: "140vh",
+          background:
+            "linear-gradient(135deg, rgba(230, 20, 56, 0.22) 0%, rgba(255, 255, 255, 0.08) 35%, transparent 70%)",
+          transform: `rotate(-22deg) translate3d(${
+            parallaxRef.current.x * 24
+          }px, ${parallaxRef.current.y * 18}px, 0)`,
+          transformOrigin: "top left",
+          mixBlendMode: "screen",
+          pointerEvents: "none",
+          filter: "blur(28px)",
+          animation: "volumetricPulse 8s ease-in-out infinite alternate",
+        }}
+      />
+      <div
+        className="volumetric-light-right"
+        style={{
+          position: "absolute",
+          top: "-20%",
+          right: "5%",
+          width: "40vw",
+          height: "140vh",
+          background:
+            "linear-gradient(-135deg, rgba(184, 134, 11, 0.22) 0%, rgba(255, 255, 255, 0.08) 35%, transparent 70%)",
+          transform: `rotate(22deg) translate3d(${
+            parallaxRef.current.x * -24
+          }px, ${parallaxRef.current.y * 18}px, 0)`,
+          transformOrigin: "top right",
+          mixBlendMode: "screen",
+          pointerEvents: "none",
+          filter: "blur(28px)",
+          animation: "volumetricPulse 9s ease-in-out infinite alternate-reverse",
+        }}
+      />
+
+      {/* ─── LAYER 3: SUBTLE 35MM CINEMATIC FILM GRAIN TEXTURE ─── */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          zIndex: 1,
+          zIndex: 2,
           backgroundImage:
-            "radial-gradient(circle, rgba(0, 0, 0, 0.12) 1px, transparent 1px)",
-          backgroundSize: "8px 8px",
-          opacity: 0.2,
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grainFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grainFilter)' opacity='0.08'/%3E%3C/svg%3E\")",
+          opacity: 0.14,
+          mixBlendMode: "overlay",
           pointerEvents: "none",
         }}
       />
 
-      {/* ─── LAYER 3: Audio Spectrum Waves, Equalizer & Embers Canvas ─── */}
+      {/* ─── LAYER 4: CANVAS AUDIO WAVEFORMS, EQUALIZER & SMOKE ─── */}
       <canvas
         ref={canvasRef}
         style={{
@@ -575,27 +650,20 @@ export default function HeroCinematicBackground() {
         }}
       />
 
-      {/* ─── LAYER 4: Dynamic Stage Spotlight Beams ─── */}
-      <div className="stage-laser-left" />
-      <div className="stage-laser-right" />
-      <div className="stage-haze-layer" />
-      <div className="volumetric-spotlight-left" />
-      <div className="volumetric-spotlight-right" />
-
-      {/* ─── LAYER 5: Luminous White Radial Overlay (Ensures 100% Text Legibility) ─── */}
+      {/* ─── LAYER 5: CRYSTAL CLEAR CONTRAST BALANCING MASK ─── */}
+      {/* Precision non-milky radial vignette that makes typography razor sharp while keeping 100% video clarity */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 5,
           background:
-            "radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.76) 0%, rgba(255,255,255,0.64) 45%, rgba(255,255,255,0.48) 75%, #FFFFFF 100%)",
+            "radial-gradient(ellipse at 50% 48%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(8, 9, 12, 0.65) 100%)",
           pointerEvents: "none",
         }}
       />
 
-      {/* ─── LAYER 6: Telemetry HUD Dock (Desktop & Mobile Tailored) ─── */}
-      {/* Bottom-Left Controls Dock */}
+      {/* ─── LAYER 6: TELEMETRY HUD DOCK (BROADCAST CONTROL) ─── */}
       <div
         className="hero-broadcast-dock-left"
         style={{
@@ -608,24 +676,24 @@ export default function HeroCinematicBackground() {
           gap: "0.65rem",
           padding: "0.4rem 0.85rem",
           background: "rgba(255, 255, 255, 0.94)",
-          backdropFilter: "blur(18px)",
-          WebkitBackdropFilter: "blur(18px)",
-          border: "1px solid rgba(0, 0, 0, 0.1)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(0, 0, 0, 0.12)",
           borderRadius: "30px",
-          boxShadow: "0 6px 24px rgba(0, 0, 0, 0.08)",
+          boxShadow: "0 8px 30px rgba(0, 0, 0, 0.14)",
           pointerEvents: "auto",
           fontFamily: "var(--font-mono)",
           fontSize: "0.68rem",
         }}
       >
-        {/* Live 4K Indicator */}
+        {/* LIVE 4K Indicator */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: "0.45rem",
             paddingRight: "0.45rem",
-            borderRight: "1px solid rgba(0,0,0,0.12)",
+            borderRight: "1px solid rgba(0, 0, 0, 0.12)",
           }}
         >
           <span
@@ -635,7 +703,7 @@ export default function HeroCinematicBackground() {
               height: "7px",
               borderRadius: "50%",
               background: "#E61438",
-              boxShadow: "0 0 8px #E61438",
+              boxShadow: "0 0 10px #E61438",
               animation: "redPulse 1.2s ease-in-out infinite alternate",
             }}
           />
@@ -644,13 +712,13 @@ export default function HeroCinematicBackground() {
           </span>
         </div>
 
-        {/* Desktop View Mode Switcher: MERGED vs SOLO */}
+        {/* Desktop View Mode Switcher */}
         <div
           className="hidden-on-mobile-dock"
           style={{
             display: "flex",
             alignItems: "center",
-            background: "rgba(0, 0, 0, 0.04)",
+            background: "rgba(0, 0, 0, 0.05)",
             padding: "2px",
             borderRadius: "16px",
             marginRight: "0.35rem",
@@ -692,15 +760,12 @@ export default function HeroCinematicBackground() {
           </button>
         </div>
 
-        {/* Camera Selector Pills (Guitar, Horn, Sound Energy) */}
+        {/* Camera Selector Pills */}
         <div style={{ display: "flex", gap: "0.25rem" }}>
           {VIDEO_FEEDS.map((feed, idx) => (
             <button
               key={feed.id}
-              onClick={() => {
-                setActiveFeed(idx);
-              }}
-              title={feed.title}
+              onClick={() => setActiveFeed(idx)}
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "0.62rem",
@@ -721,7 +786,7 @@ export default function HeroCinematicBackground() {
         </div>
       </div>
 
-      {/* Bottom-Right Timecode & Telemetry */}
+      {/* Telemetry FOH dB & Timecode (Bottom Right) */}
       <div
         className="hero-broadcast-dock-right"
         style={{
@@ -734,24 +799,24 @@ export default function HeroCinematicBackground() {
           gap: "0.75rem",
           padding: "0.4rem 0.85rem",
           background: "rgba(255, 255, 255, 0.94)",
-          backdropFilter: "blur(18px)",
-          WebkitBackdropFilter: "blur(18px)",
-          border: "1px solid rgba(0, 0, 0, 0.1)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(0, 0, 0, 0.12)",
           borderRadius: "30px",
-          boxShadow: "0 6px 24px rgba(0, 0, 0, 0.08)",
+          boxShadow: "0 8px 30px rgba(0, 0, 0, 0.14)",
           fontFamily: "var(--font-mono)",
           fontSize: "0.68rem",
           color: "#4B5563",
         }}
       >
-        <span style={{ fontWeight: 700, color: "#1F242F" }}>TC: {timecode}</span>
+        <span style={{ fontWeight: 700, color: "#0F1115" }}>TC: {timecode}</span>
         <span
           style={{
             padding: "2px 8px",
             borderRadius: "12px",
-            background: "rgba(184, 134, 11, 0.15)",
+            background: "rgba(184, 134, 11, 0.18)",
             color: "#855A00",
-            fontWeight: 700,
+            fontWeight: 800,
             fontSize: "0.62rem",
           }}
         >
@@ -760,6 +825,22 @@ export default function HeroCinematicBackground() {
       </div>
 
       <style>{`
+        /* Slow Cinematic Camera Push */
+        .hero-slow-camera-push {
+          animation: slowCameraPush 24s ease-in-out infinite alternate;
+        }
+        @keyframes slowCameraPush {
+          0% { transform: scale(1.0); }
+          50% { transform: scale(1.05) translateY(-6px); }
+          100% { transform: scale(1.0); }
+        }
+
+        /* Volumetric Light Pulse */
+        @keyframes volumetricPulse {
+          0% { opacity: 0.7; transform: rotate(-22deg) scale(0.96); }
+          100% { opacity: 1.0; transform: rotate(-18deg) scale(1.04); }
+        }
+
         @media (max-width: 768px) {
           .hero-desktop-video-wrapper {
             display: none !important;
@@ -782,10 +863,6 @@ export default function HeroCinematicBackground() {
             max-width: calc(100vw - 2rem) !important;
             justify-content: center !important;
           }
-        }
-        @keyframes soloZoomIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>

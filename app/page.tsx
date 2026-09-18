@@ -183,46 +183,61 @@ export default function HomePage() {
             </span>
           </div>
 
-          {/* Main Display Headline */}
-          <h1
-            ref={headlineRef}
-            className="display-hero"
+          {/* Main Display Headline with Kinetic Glow & Crystal Clarity */}
+          <div
             style={{
-              fontSize: "clamp(2.5rem, 8.5vw, 7.5rem)",
-              color: "#0B0E14",
-              opacity: 0,
-              letterSpacing: "-0.03em",
-              lineHeight: 0.92,
-              textShadow: "0 2px 30px rgba(255, 255, 255, 0.9), 0 10px 40px rgba(0, 0, 0, 0.06)",
+              display: "inline-block",
+              padding: "0.8rem 1.8rem",
+              borderRadius: "36px",
+              background: "radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 65%, transparent 100%)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              maxWidth: "100%",
             }}
           >
-            Every Band<br />
-            <span
+            <h1
+              ref={headlineRef}
+              className="display-hero hero-kinetic-title"
               style={{
-                color: "var(--red)",
-                textShadow: "0 0 35px rgba(230, 20, 56, 0.35)",
+                fontSize: "clamp(2.5rem, 8.5vw, 7.5rem)",
+                color: "#08090C",
+                opacity: 0,
+                letterSpacing: "-0.02em",
+                lineHeight: 0.94,
+                textShadow: "0 0 25px rgba(255, 255, 255, 0.95), 0 2px 12px rgba(255, 255, 255, 0.8), 0 8px 30px rgba(0, 0, 0, 0.35)",
               }}
             >
-              Has a Story
-            </span>
-          </h1>
+              Every Band<br />
+              <span
+                style={{
+                  color: "var(--red)",
+                  textShadow: "0 0 35px rgba(230, 20, 56, 0.75), 0 0 70px rgba(230, 20, 56, 0.35), 0 4px 15px rgba(0, 0, 0, 0.3)",
+                  display: "inline-block",
+                  animation: "kineticRedPulse 3s ease-in-out infinite alternate",
+                }}
+              >
+                Has a Story
+              </span>
+            </h1>
 
-          <p
-            ref={subRef}
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 800,
-              fontSize: "clamp(1.05rem, 3.2vw, 2.3rem)",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "#181C24",
-              marginTop: "1.5rem",
-              opacity: 0,
-              textShadow: "0 1px 15px rgba(255, 255, 255, 0.8)",
-            }}
-          >
-            Every Story Needs a Stage
-          </p>
+            <p
+              ref={subRef}
+              className="hero-kinetic-subtitle"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 800,
+                fontSize: "clamp(1.05rem, 3.2vw, 2.3rem)",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "#08090C",
+                marginTop: "1.2rem",
+                opacity: 0,
+                textShadow: "0 0 20px rgba(255, 255, 255, 0.95), 0 2px 10px rgba(255, 255, 255, 0.85), 0 4px 18px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              Every Story Needs a Stage
+            </p>
+          </div>
 
           {/* CTAs */}
           <div
