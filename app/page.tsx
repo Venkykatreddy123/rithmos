@@ -70,27 +70,23 @@ export default function HomePage() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-      tl.fromTo(
+      tl.from(
         "#hero-hud-badge",
-        { opacity: 0, y: -20 },
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.1 }
+        { opacity: 0, y: -20, duration: 0.8, delay: 0.1 }
       )
-        .fromTo(
+        .from(
           headlineRef.current,
-          { opacity: 0, y: 50, scale: 0.96 },
-          { opacity: 1, y: 0, scale: 1, duration: 1.1 },
+          { opacity: 0, y: 50, scale: 0.96, duration: 1.1 },
           "-=0.4"
         )
-        .fromTo(
+        .from(
           subRef.current,
-          { opacity: 0, y: 25 },
-          { opacity: 1, y: 0, duration: 0.9 },
+          { opacity: 0, y: 25, duration: 0.9 },
           "-=0.6"
         )
-        .fromTo(
+        .from(
           "#hero-cta-group",
-          { opacity: 0, y: 25 },
-          { opacity: 1, y: 0, duration: 0.85 },
+          { opacity: 0, y: 25, duration: 0.85 },
           "-=0.5"
         );
 
@@ -170,7 +166,6 @@ export default function HomePage() {
               alignItems: "center",
               gap: "0.85rem",
               marginBottom: "1.5rem",
-              opacity: 0,
               flexWrap: "wrap",
               justifyContent: "center",
             }}
@@ -183,61 +178,49 @@ export default function HomePage() {
             </span>
           </div>
 
-          {/* Main Display Headline with Kinetic Glow & Crystal Clarity */}
-          <div
+          {/* Main Display Headline (Restored Quotes with Crystal Clarity) */}
+          <h1
+            ref={headlineRef}
+            className="display-hero"
             style={{
-              display: "inline-block",
-              padding: "0.8rem 1.8rem",
-              borderRadius: "36px",
-              background: "radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 65%, transparent 100%)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-              maxWidth: "100%",
+              fontSize: "clamp(2.6rem, 8.5vw, 7.5rem)",
+              fontFamily: "var(--font-display)",
+              fontWeight: 900,
+              fontStyle: "italic",
+              textTransform: "uppercase",
+              color: "#0F1115",
+              letterSpacing: "-0.01em",
+              lineHeight: 0.94,
+              textShadow: "0 2px 25px rgba(255, 255, 255, 0.95), 0 0 12px rgba(255, 255, 255, 0.8), 0 8px 32px rgba(0, 0, 0, 0.25)",
             }}
           >
-            <h1
-              ref={headlineRef}
-              className="display-hero hero-kinetic-title"
+            Every Band<br />
+            <span
               style={{
-                fontSize: "clamp(2.5rem, 8.5vw, 7.5rem)",
-                color: "#08090C",
-                opacity: 0,
-                letterSpacing: "-0.02em",
-                lineHeight: 0.94,
-                textShadow: "0 0 25px rgba(255, 255, 255, 0.95), 0 2px 12px rgba(255, 255, 255, 0.8), 0 8px 30px rgba(0, 0, 0, 0.35)",
+                color: "var(--red)",
+                textShadow: "0 0 35px rgba(230, 20, 56, 0.6), 0 2px 20px rgba(255, 255, 255, 0.8)",
+                display: "inline-block",
               }}
             >
-              Every Band<br />
-              <span
-                style={{
-                  color: "var(--red)",
-                  textShadow: "0 0 35px rgba(230, 20, 56, 0.75), 0 0 70px rgba(230, 20, 56, 0.35), 0 4px 15px rgba(0, 0, 0, 0.3)",
-                  display: "inline-block",
-                  animation: "kineticRedPulse 3s ease-in-out infinite alternate",
-                }}
-              >
-                Has a Story
-              </span>
-            </h1>
+              Has a Story
+            </span>
+          </h1>
 
-            <p
-              ref={subRef}
-              className="hero-kinetic-subtitle"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 800,
-                fontSize: "clamp(1.05rem, 3.2vw, 2.3rem)",
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "#08090C",
-                marginTop: "1.2rem",
-                opacity: 0,
-                textShadow: "0 0 20px rgba(255, 255, 255, 0.95), 0 2px 10px rgba(255, 255, 255, 0.85), 0 4px 18px rgba(0, 0, 0, 0.3)",
-              }}
-            >
-              Every Story Needs a Stage
-            </p>
-          </div>
+          <p
+            ref={subRef}
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 900,
+              fontSize: "clamp(1.1rem, 3.2vw, 2.4rem)",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "#0F1115",
+              marginTop: "1.25rem",
+              textShadow: "0 2px 20px rgba(255, 255, 255, 0.95), 0 0 10px rgba(255, 255, 255, 0.8), 0 4px 18px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            Every Story Needs a Stage
+          </p>
 
           {/* CTAs */}
           <div
@@ -246,16 +229,34 @@ export default function HomePage() {
               display: "flex",
               gap: "1.2rem",
               justifyContent: "center",
-              marginTop: "2.5rem",
+              marginTop: "2.2rem",
               marginBottom: "2.5rem",
               flexWrap: "wrap",
-              opacity: 0,
             }}
           >
-            <Link href="/contact" className="btn-primary" style={{ padding: "1rem 2.4rem" }}>
+            <Link
+              href="/contact"
+              className="btn-primary"
+              style={{
+                padding: "1rem 2.4rem",
+                borderRadius: "6px",
+                fontSize: "1rem",
+                boxShadow: "0 6px 25px rgba(230, 20, 56, 0.35)",
+              }}
+            >
               Register Your Band (Free) →
             </Link>
-            <Link href="/competition" className="btn-outline" style={{ padding: "1rem 2.4rem" }}>
+            <Link
+              href="/competition"
+              className="btn-outline"
+              style={{
+                padding: "1rem 2.4rem",
+                borderRadius: "6px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.9)",
+                backdropFilter: "blur(12px)",
+              }}
+            >
               Explore The 4 Stages
             </Link>
           </div>
